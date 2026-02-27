@@ -514,7 +514,11 @@ def _parse_result_page(soup: BeautifulSoup, is_start_list: bool = False) -> tupl
             # even if athletes were found (avoids false-complete on pre-meet pages)
             status = EventStatus.SCHEDULED
         elif all_has_places or any(a.final_mark for a in athletes):
-            status = EventStatus.FINAL
+            # For vertical field events (High Jump, Pole Vault), athletes still
+            # competing have a <span class='sq'></span> in their row.
+            # If any sq spans exist, the event is still in progress.
+            has_active = bool(soup and soup.find("span", class_="sq"))
+            status = EventStatus.IN_PROGRESS if has_active else EventStatus.FINAL
         else:
             status = EventStatus.IN_PROGRESS
 
@@ -671,6 +675,8 @@ def _parse_scores_page(soup: BeautifulSoup, event_name: str, gender: Gender) -> 
 # ---------------------------------------------------------------------------
 # Main scrape entry point
 # ---------------------------------------------------------------------------
+
+
 
 def scrape_meet(meet_url: str, prev_state: "MeetState" = None) -> MeetState:
     """
