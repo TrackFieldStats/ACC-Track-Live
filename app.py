@@ -538,19 +538,14 @@ def main():
     """, unsafe_allow_html=True)
 
     # Refresh controls
-    col_status, col_btn = st.columns([3, 1])
-    with col_status:
-        if st.session_state.last_scrape_time:
-            last = datetime.fromtimestamp(st.session_state.last_scrape_time)
-            elapsed = int(time.time() - st.session_state.last_scrape_time)
-            next_refresh = max(0, REFRESH_INTERVAL_SECONDS - elapsed)
-            st.caption(
-                f"Last updated: {last.strftime('%I:%M:%S %p')} · "
-                f"Next refresh in {next_refresh}s"
-            )
-    with col_btn:
-        if st.button("🔄 Refresh Now", type="secondary"):
-            st.session_state.last_scrape_time = 0
+    if st.session_state.last_scrape_time:
+        last = datetime.fromtimestamp(st.session_state.last_scrape_time)
+        elapsed = int(time.time() - st.session_state.last_scrape_time)
+        next_refresh = max(0, REFRESH_INTERVAL_SECONDS - elapsed)
+        st.caption(
+            f"Last updated: {last.strftime('%I:%M:%S %p')} · "
+            f"Next refresh in {next_refresh}s"
+        )
 
     # Auto-refresh or manual trigger
     if _should_refresh():
